@@ -55,7 +55,7 @@ pipeline {
                 build job: '00-vpc', parameters: [string(name: 'ACTION', value: "destroy")], wait: false
             }
         }
-        stage('Parallel') {
+        /* stage('Parallel') {
             when {
                 expression { params.ACTION == 'apply' }
             }
@@ -106,7 +106,7 @@ pipeline {
                 }
             }
                 
-        }
+        } */
 
     }
 
