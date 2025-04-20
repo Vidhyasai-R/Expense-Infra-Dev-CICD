@@ -1,23 +1,23 @@
-pipeline{
+pipeline {
     agent {
         label 'AGENT-1'
     }
-    options {
+    options{
         timeout(time: 30, unit: 'MINUTES')
-        ansiColor('xterm')
         disableConcurrentBuilds()
+        ansiColor('xterm')
     }
-    /* environment{
-        DEBUG = 'true'
-    } */
+    // environment {
+    //     DEBUG = 'true'
+    // }
 
-    parameters{
+    parameters {
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select Action')
     }
     stages {
         stage('Init and Plan') {
             steps {
-                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
+                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
                         cd 00-vpc
                         terraform init -reconfigure
@@ -26,12 +26,17 @@ pipeline{
                 }
             }
         }
+
         stage('Apply or Destroy') {
+            /* input {
+                message "Should we continue to ${params.ACTION}"
+                ok "Yes, we should."
+            } */
             steps {
-                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
+                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
                         cd 00-vpc
-                        if [ ${params.ACTION} == 'apply']
+                        if [ ${params.ACTION} == 'apply' ]
                         then
                             terraform apply -auto-approve tfplan
                         elif [ ${params.ACTION} == 'destroy' ]
@@ -54,8 +59,14 @@ pipeline{
 
     post {
         always{
-            echo "This section runs always"
+            echo "This sections runs always"
             deleteDir()
+        }
+        success{
+            echo "This section run when pipeline success"
+        }
+        failure{
+            echo "This section run when pipeline failure"
         }
     }
 }
